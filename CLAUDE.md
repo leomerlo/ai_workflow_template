@@ -32,3 +32,7 @@ Run the typecheck and test commands before considering a change done. Wire them 
 ## Agents
 
 `product-manager`, `ui-ux-developer`, `backend-developer`, `qa-tester`, `code-review`, `security-review` in `.claude/agents/`.
+
+## Hooks
+
+- `session-start-project-intro` — on the first session in a repo cloned from this template (while the `# Project` placeholder in this file is still unfilled), interviews the user about what the project does and its technologies, then fills in `## Description` and `## Technologies` here. See `.claude/hooks/session-start-project-intro.sh`.
