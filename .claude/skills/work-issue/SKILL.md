@@ -17,6 +17,7 @@ Take a GitHub issue from plan to reviewed implementation.
 ### 2. Implement
 
 - As soon as the plan is approved, mark the issue as in progress: `gh label create "in progress" --color FBCA04 --force && gh issue edit <n> --add-label "in progress"`.
+- Isolate the work in its own worktree: `EnterWorktree(name: "issue-<n>")`. Everything from here through the PR push (implementation, tests, all review rounds) happens inside it. Note the worktree path from the tool result — it's needed to re-enter later.
 - Delegate by area: `backend-developer` agent for server-side changes, `ui-ux-developer` agent for UI changes. Small cross-cutting glue can be done directly.
 - Keep to the plan; build the minimum viable change.
 
@@ -34,6 +35,8 @@ Take a GitHub issue from plan to reviewed implementation.
 
 Summarize: what was implemented, tests added, findings fixed per round (including "none"), and final test status. If a remote exists, offer to post the summary as a comment on the issue.
 
+Once the branch is pushed and the PR opened, leave the worktree: `ExitWorktree(action: "keep")`. This returns the session to the main checkout without discarding the branch. If more commits are needed later (review feedback, CI fixes), go back in with `EnterWorktree(path: <worktree path>)`.
+
 ### 6. Close the issue on merge
 
 When the PR gets merged (in this session or a later one), do not rely on `Closes #N` auto-close — verify and close explicitly:
@@ -43,3 +46,5 @@ gh issue view <n> --json state -q .state   # if still OPEN:
 gh issue close <n> --comment "Done in #<PR>."
 gh issue edit <n> --remove-label "in progress"
 ```
+
+Then clean up the worktree, since its branch is now merged: `EnterWorktree(path: <worktree path>)` followed by `ExitWorktree(action: "remove", discard_changes: true)`.
