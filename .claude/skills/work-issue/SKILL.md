@@ -14,16 +14,23 @@ Take a GitHub issue from plan to reviewed implementation.
 - Fetch the issue: `gh issue view <n> --comments` (if no remote, ask for the ticket file in `docs/tickets/` instead).
 - Explore the related code, then present a short implementation plan: files to touch, approach, tests to write. Get user confirmation before coding.
 
-### 2. Implement
+### 2. Implement — test-driven, red before green
 
 - As soon as the plan is approved, mark the issue as in progress: `gh label create "in progress" --color FBCA04 --force && gh issue edit <n> --add-label "in progress"`.
 - Isolate the work in its own worktree: `EnterWorktree(name: "issue-<n>")`. Everything from here through the PR push (implementation, tests, all review rounds) happens inside it. Note the worktree path from the tool result — it's needed to re-enter later.
-- Delegate by area: `backend-developer` agent for server-side changes, `ui-ux-developer` agent for UI changes. Small cross-cutting glue can be done directly.
+- Delegate by area: `backend-developer` agent for server-side changes, `ui-ux-developer` agent for UI changes. Small cross-cutting glue can be done directly. Instruct the delegate to follow the TDD loop below rather than writing implementation first.
+- Break the issue's acceptance criteria into seams — the public interfaces (exported API, rendered output/interactions) where each criterion is observable. One acceptance criterion may need one or several seams.
+- Red → green loop, one slice at a time:
+  1. Pick one acceptance criterion. Write one colocated test (`*.test.*`) against its seam, asserting behavior through the public interface — not internals, not mocks of internal collaborators. Expected values come from the spec/acceptance criteria, not recomputed the way the code will compute them.
+  2. Run it and confirm it fails (red) — this proves the test actually exercises the criterion.
+  3. Write the minimum code to make it pass (green). No speculative extras.
+  4. Repeat for the next criterion. Don't write all tests up front (horizontal slicing) — each cycle should respond to what the last one taught you.
+- Refactoring happens at the review stage (step 4), not inside the red-green loop.
 - Keep to the plan; build the minimum viable change.
 
 ### 3. Test
 
-- Every change ships with colocated unit tests. Launch the `qa-tester` agent on the diff to find missing edge cases and add the missing tests.
+- With acceptance criteria covered by the loop above, launch the `qa-tester` agent on the diff to find missing edge cases (error paths, boundary conditions) and add the missing tests.
 - Gate: the project's typecheck and test commands (see CLAUDE.md) must pass before review starts.
 
 ### 4. Review — 3 rounds of code review, then security review
