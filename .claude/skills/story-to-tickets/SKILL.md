@@ -14,11 +14,14 @@ Break a user story into independent, well-scoped GitHub issues plus a short desi
    - A short technical design note (what parts of the codebase are touched, in what order)
    - A list of tickets, each independently implementable and testable, as vertical slices, with title, description, and acceptance criteria
 3. **Document**: Write the design note to `docs/<slug>-design.md`.
-4. **Create tickets**:
-   - If a GitHub remote exists (`git remote get-url origin` succeeds): create each ticket with `gh issue create --title "..." --body "..."`, referencing the story doc and cross-linking dependent issues.
-   - If no remote: write each ticket to `docs/tickets/<slug>-<n>-<title>.md` in the same format and tell the user they can be pushed to GitHub later.
-5. **Report**: List the created issues (numbers/URLs or file paths) and the suggested implementation order.
+4. **Create tickets** as a parent/subticket hierarchy — one feature (parent) issue plus one subticket per vertical slice:
+   - If a GitHub remote exists (`git remote get-url origin` succeeds):
+     1. Create the parent feature issue first (title = the story/feature name, body = feature summary + link to the story/design doc + a task-list placeholder that will be filled in step 3): `gh issue create --title "<Feature>" --body "..."`. Note its number.
+     2. Create each vertical-slice subticket with `gh issue create --title "..." --body "..."`, where the body includes a `Part of #<parent-number>` line and cross-links dependent subtickets.
+     3. Update the parent issue's body to add a task list checking off each subticket by number (`- [ ] #<n>`) via `gh issue edit <parent-number> --body "..."`.
+   - If no remote: write the parent ticket to `docs/tickets/<slug>-0-<title>.md` and each subticket to `docs/tickets/<slug>-<n>-<title>.md` in the same format, with subtickets noting `Part of <slug>-0` and the parent listing them, and tell the user they can be pushed to GitHub later.
+5. **Report**: List the created issues (numbers/URLs or file paths), which are the parent and which are subtickets, and the suggested implementation order.
 
 ## Ticket format
 
-Title: imperative, scoped (`Add health-check polling to dashboard`). Body: context (1-2 sentences), acceptance criteria checklist, link to the story/design doc, dependencies on other tickets if any.
+Title: imperative, scoped (`Add health-check polling to dashboard`). Body: context (1-2 sentences), acceptance criteria checklist, link to the story/design doc, dependencies on other tickets if any. Subtickets additionally state `Part of #<parent-number>` (or `Part of <slug>-0` when no GitHub remote).
