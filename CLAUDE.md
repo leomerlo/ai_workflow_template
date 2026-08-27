@@ -23,12 +23,21 @@ Run the typecheck and test commands before considering a change done. Wire them 
 - Tests are colocated with the code: `*.test.*` next to the module they cover.
 - Test through public boundaries (exported app/API for backends, rendered output and user interactions for UIs), not implementation details.
 
+## Releases
+
+<!-- Fill in only if this project cuts releases via a diff between two branches (e.g. dev -> main). Delete this section otherwise. -->
+
+- Branches compared for a release: `<base>` and `<release>` (e.g. `main` and `dev`)
+- Release tag / version naming: `<pattern>` (e.g. `app@1.4.0`)
+- Release checklist location: `<path>` (e.g. `docs/releases/`)
+
 ## Skills
 
 - `create-story` — interview the user to produce a user story in `docs/stories/`
 - `story-to-tickets` — break a user story into a design doc and GitHub issues
 - `work-issue` — plan from an issue, implement, test, 3 code-review rounds + security review
 - `sync-project-info` — re-scan the codebase and refresh this file's Description/Technologies (e.g. after copying an existing app into the template)
+- `prepare-release` — produce a manual test checklist for a release: fixed smoke tests plus feature tests derived from the diff between the release branches above
 
 ## Agents
 
@@ -36,4 +45,4 @@ Run the typecheck and test commands before considering a change done. Wire them 
 
 ## Hooks
 
-- `session-start-project-intro` — on the first session in a repo cloned from this template (while the `# Project` placeholder in this file is still unfilled), interviews the user about what the project does and its technologies, then fills in `## Description` and `## Technologies` here. See `.claude/hooks/session-start-project-intro.sh`.
+- `session-start-project-intro` — on the first session in a repo cloned from this template (while the `# Project` placeholder in this file is still unfilled), interviews the user about what the project does and its technologies, then fills in `## Description` and `## Technologies` here. If the `prepare-release` skill is present, it also asks about the release conventions above and the golden-path smoke tests, filling in `## Releases` here and `.claude/skills/prepare-release/SMOKE-TESTS.md`. See `.claude/hooks/session-start-project-intro.sh`.
