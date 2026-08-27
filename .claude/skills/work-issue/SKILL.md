@@ -31,7 +31,7 @@ Take a GitHub issue from plan to reviewed implementation.
 ### 3. Test
 
 - With acceptance criteria covered by the loop above, launch the `qa-tester` agent on the diff to find missing edge cases (error paths, boundary conditions) and add the missing tests.
-- Gate: the project's typecheck and test commands (see CLAUDE.md) must pass before review starts.
+- Gate: the project's typecheck and test commands (see AGENTS.md) must pass before review starts.
 
 ### 4. Review — 3 rounds of code review, then security review
 

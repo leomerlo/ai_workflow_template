@@ -10,9 +10,9 @@ Turn what changed since the last release into a manual test checklist: a fixed s
 
 ## 0. Find this project's release conventions
 
-Read CLAUDE.md's `## Releases` section for the base/release branch names, the tag or version naming
+Read AGENTS.md's `## Releases` section for the base/release branch names, the tag or version naming
 pattern, and where checklists should be written. If that section is still a placeholder (or missing),
-ask the user for these three things and offer to fill in `## Releases` in CLAUDE.md so future runs
+ask the user for these three things and offer to fill in `## Releases` in AGENTS.md so future runs
 don't need to ask again.
 
 ## 1. Diff the release branch against the base branch

@@ -11,7 +11,7 @@ A stack-agnostic agentic development workflow for Claude Code: skills that take 
 
 ## Other skills
 
-- **`sync-project-info`** — re-scans an existing codebase (e.g. after dropping a working app into the template) and refreshes `CLAUDE.md`'s Description/Technologies/Commands to match reality, instead of interviewing from scratch.
+- **`sync-project-info`** — re-scans an existing codebase (e.g. after dropping a working app into the template) and refreshes `AGENTS.md`'s Description/Technologies/Commands to match reality, instead of interviewing from scratch.
 
 ## Role agents (`.claude/agents/`)
 
@@ -26,8 +26,8 @@ A stack-agnostic agentic development workflow for Claude Code: skills that take 
 
 ## Using it in a project
 
-1. Copy `.claude/`, `CLAUDE.md`, and `docs/` into your repo.
-2. On the first session, the `session-start-project-intro` hook interviews you about the project's purpose and stack (and, if `prepare-release` is present, its release conventions and smoke tests) and fills in `CLAUDE.md` for you. If real code already exists, run `/sync-project-info` instead to derive that info from the repo rather than from memory.
+1. Copy `.claude/`, `AGENTS.md`, `CLAUDE.md` (a symlink to `AGENTS.md`, so Claude Code picks it up too), and `docs/` into your repo. If your copy method doesn't preserve symlinks, just recreate it: `ln -s AGENTS.md CLAUDE.md`.
+2. On the first session, the `session-start-project-intro` hook interviews you about the project's purpose and stack (and, if `prepare-release` is present, its release conventions and smoke tests) and fills in `AGENTS.md` for you. If real code already exists, run `/sync-project-info` instead to derive that info from the repo rather than from memory.
 3. Add quality gates for your stack: pre-commit hooks (e.g. Husky + lint-staged) and a CI pipeline that runs typecheck, lint, and tests.
 4. Start with `/create-story`.
 
