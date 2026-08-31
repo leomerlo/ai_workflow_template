@@ -49,17 +49,21 @@ This skill runs from the main checkout — no worktree of its own, since it neve
 
 ### 3. Work each subtask in order
 
+Subagents cannot call `AskUserQuestion` — only you (this orchestrator) can. So the plan gate and the post-PR validation gate both move to you, outside the `work-issue` subagent's turn.
+
 For each sub-issue N in the resolved order:
 
-1. Launch `Agent` with `subagent_type: general-purpose` (it needs the `Skill` tool). Prompt it to invoke the `work-issue` skill for issue N, explicitly stating this is **orchestrated mode**: base branch is `feat/<slug>` (already exists, do not create it), never touch the parent issue, use `AskUserQuestion` instead of just waiting for the plan gate and the post-PR validation gate, open the PR against `feat/<slug>`, and stop short of merging/cleanup/closing the subtask issue (see `work-issue`'s "Orchestrated mode" section for the full contract — link it in the prompt).
-2. The subagent will surface an `AskUserQuestion` for its implementation plan, and another once the PR is open and CI is green, asking you to validate before merging. Answer both as they come.
-3. Once you approve the final validation question, merge the subtask's PR into the feature branch:
+1. **Plan.** Launch `Agent` with `subagent_type: general-purpose` in a read-only **planning** role: fetch issue N (`gh issue view <n> --comments`), explore related code, and return a short implementation plan (files to touch, approach, tests to write) in its final report. It must not create a worktree, write code, or attempt to call `AskUserQuestion`.
+2. **Approve.** Present that plan to the user yourself via `AskUserQuestion`. If they want changes, relaunch the planning subagent with their feedback (or revise the plan yourself) and ask again. Do not proceed until approved.
+3. **Implement.** Launch a fresh `Agent` with `subagent_type: general-purpose` (it needs the `Skill` tool) to invoke the `work-issue` skill for issue N, explicitly stating this is **orchestrated mode**: base branch is `feat/<slug>` (already exists, do not create it), never touch the parent issue, open the PR against `feat/<slug>`, and stop short of merging/cleanup/closing the subtask issue. Include the **approved plan verbatim** in the prompt and instruct it to skip its own step 1 (planning) entirely — go straight to worktree creation with the given plan. Once the PR is open and CI is green (if applicable), it ends its turn and reports the PR URL + CI status; it must not stop-and-wait or call `AskUserQuestion` for post-PR validation (see `work-issue`'s "Orchestrated mode" section for the full contract — link it in the prompt).
+4. **Validate.** Once the subagent's turn ends, ask the user yourself via `AskUserQuestion` whether to merge the subtask PR.
+5. On approval, merge the subtask's PR into the feature branch:
    ```bash
    gh pr merge <subtask-pr> --merge
    ```
    (adjust to squash/rebase if that's this repo's convention). Delete the remote subtask branch if it isn't cleaned up automatically.
-4. Now that the subagent's turn has ended, finish what it deferred: close the subtask issue if `Closes #N` didn't auto-close it, remove its "in progress" label, and remove its worktree — `EnterWorktree(path: .claude/worktrees/issue-<n>)` followed by `ExitWorktree(action: "remove", discard_changes: true)`.
-5. Move to the next subtask in the order.
+6. Now that the subagent's turn has ended, finish what it deferred: close the subtask issue if `Closes #N` didn't auto-close it, remove its "in progress" label, and remove its worktree — `EnterWorktree(path: .claude/worktrees/issue-<n>)` followed by `ExitWorktree(action: "remove", discard_changes: true)`.
+7. Move to the next subtask in the order.
 
 ### 4. Close out the feature
 

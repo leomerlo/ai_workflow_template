@@ -60,6 +60,7 @@ Then clean up the worktree, since its branch is now merged: `EnterWorktree(path:
 
 `implement-feat` breaks a parent issue into subtasks and delegates each one to a fresh subagent that follows this skill. When you (this skill) are invoked by such a subagent — the prompt will say so explicitly, naming the parent issue and the feature branch to use — adapt as follows:
 
+- **No plan gate — skip step 1 entirely.** Subagents cannot call `AskUserQuestion`, so `implement-feat` runs planning itself (via a separate read-only planning subagent) and gets the human's approval *before* launching you. The prompt that invoked you includes the already-approved plan verbatim — use it as-is. Do not re-explore, do not revise it, do not wait for confirmation; go straight to marking the issue in progress and entering the worktree.
 - **Base branch is fixed.** The worktree must branch from the feature branch `implement-feat` names, not the repo's default integration branch. `EnterWorktree(name: ...)` always branches from the default branch (or local HEAD, per `worktree.baseRef`), so it can't target an arbitrary feature branch — instead create the worktree manually and register it:
   ```bash
   git fetch origin
@@ -67,7 +68,6 @@ Then clean up the worktree, since its branch is now merged: `EnterWorktree(path:
   ```
   then switch the session into it with `EnterWorktree(path: .claude/worktrees/issue-<n>)`.
 - **Never touch the parent issue.** No labels, no closing, no comments on it. `implement-feat` owns all of that.
-- **Replace "get user confirmation" gates with `AskUserQuestion`.** A subagent can't stop its turn and expect the next user message to resume it — it runs to completion and returns a report. So instead of just asking and waiting (step 1's plan confirmation, and the post-PR point below), call `AskUserQuestion` to get the human's decision inline, then continue based on the answer.
+- **No post-PR validation gate either.** Once the PR is open and CI is green (if applicable), do not stop-and-wait and do not call `AskUserQuestion` — you have no access to it. Simply end your turn; state the PR URL and CI status clearly in your final report. `implement-feat` collects the human's validation itself after your turn ends.
 - **Open the PR against the feature branch**, not the repo's default integration branch.
-- **Add an explicit validation gate after the PR is open and CI is green** (this skill's normal flow has none — it just reports and moves on). Before finishing your turn, call `AskUserQuestion` asking the human to validate the PR, and wait for their answer.
-- **Do not merge the PR yourself, do not remove the worktree, and do not run step 6** — `implement-feat` does the merge after the `AskUserQuestion` validation gate passes, then closes the subtask issue, removes its "in progress" label, and cleans up the worktree itself, since those only make sense once the PR is actually merged and your turn has already ended by then. Your job ends once the PR is open, CI is green (if applicable), and the validation question has been answered.
+- **Do not merge the PR yourself, do not remove the worktree, and do not run step 6** — `implement-feat` does the merge after its own validation gate passes, then closes the subtask issue, removes its "in progress" label, and cleans up the worktree itself, since those only make sense once the PR is actually merged and your turn has already ended by then. Your job ends once the PR is open, CI is green (if applicable), and you've reported that in your final report.
