@@ -12,6 +12,7 @@ A stack-agnostic agentic development workflow for Claude Code: skills that take 
 
 ## Other skills
 
+- **`explain`** — a plain-language, live-read walkthrough of this template (what it is, the skill order, what each piece does). Fires automatically on first clone via the `session-start-project-intro` hook; re-run any time with `/explain`.
 - **`sync-project-info`** — re-scans an existing codebase (e.g. after dropping a working app into the template) and refreshes `AGENTS.md`'s Description/Technologies/Commands to match reality, instead of interviewing from scratch.
 
 ## Design workflow
