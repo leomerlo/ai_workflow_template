@@ -26,9 +26,53 @@ A stack-agnostic agentic development workflow for Claude Code: skills that take 
 
 ## Using it in a project
 
-1. Copy `.claude/`, `AGENTS.md`, `CLAUDE.md` (a symlink to `AGENTS.md`, so Claude Code picks it up too), and `docs/` into your repo. If your copy method doesn't preserve symlinks, just recreate it: `ln -s AGENTS.md CLAUDE.md`.
-2. On the first session, the `session-start-project-intro` hook interviews you about the project's purpose and stack (and, if `prepare-release` is present, its release conventions and smoke tests) and fills in `AGENTS.md` for you. If real code already exists, run `/sync-project-info` instead to derive that info from the repo rather than from memory.
-3. Add quality gates for your stack: pre-commit hooks (e.g. Husky + lint-staged) and a CI pipeline that runs typecheck, lint, and tests.
-4. Start with `/create-story`.
+The recommended way to bring this template into your repo is [`git subtree`](https://git-scm.com/book/en/v2/Git-Tools-Advanced-Merging#_subtree_merge): it copies the template's files into your repo (no submodule pointer, no extra clone step for collaborators) while still letting you pull upstream updates later with a normal `git subtree pull`.
+
+Either way, once the files are in place:
+
+1. On the first session, the `session-start-project-intro` hook interviews you about the project's purpose and stack (and, if `prepare-release` is present, its release conventions and smoke tests) and fills in `AGENTS.md` for you. If real code already exists, run `/sync-project-info` instead to derive that info from the repo rather than from memory.
+2. Add quality gates for your stack: pre-commit hooks (e.g. Husky + lint-staged) and a CI pipeline that runs typecheck, lint, and tests.
+3. Start with `/create-story`.
 
 The workflow assumes a GitHub remote for issues (`gh` CLI); without one, tickets fall back to `docs/tickets/` files.
+
+### Option A — subtree (recommended)
+
+Run this once per repo to add the template as a remote, then pull it in:
+
+```bash
+git remote add ai-workflow-template https://github.com/leomerlo/ai_workflow_template.git
+git fetch ai-workflow-template
+```
+
+**New project (empty repo, or one with no conflicting paths):**
+
+```bash
+git subtree add --prefix=. ai-workflow-template main --squash
+```
+
+This adds `.claude/`, `AGENTS.md`, `CLAUDE.md`, and `docs/` at the root of your repo in one squashed commit.
+
+**Existing project (repo already has files):**
+
+`subtree add` fails if any of the template's paths (`.claude/`, `AGENTS.md`, `CLAUDE.md`, `docs/`) already exist in your repo. If none of them do, the same command as above works. If some do — e.g. you already have a `docs/` or an `AGENTS.md` — pull the template into a throwaway folder first and merge by hand:
+
+```bash
+git subtree add --prefix=.ai-workflow-template-tmp ai-workflow-template main --squash
+# move/merge the pieces you need (.claude/, AGENTS.md, CLAUDE.md, docs/) into place,
+# resolving conflicts with your existing files, then:
+rm -rf .ai-workflow-template-tmp
+git add -A && git commit -m "Merge ai-workflow-template"
+```
+
+If your copy method doesn't preserve the `CLAUDE.md` → `AGENTS.md` symlink (some zip/GitHub-archive downloads don't), recreate it: `ln -s AGENTS.md CLAUDE.md`.
+
+**Pulling future updates** (either case), once the remote is set up:
+
+```bash
+git subtree pull --prefix=. ai-workflow-template main --squash
+```
+
+### Option B — manual copy
+
+Copy `.claude/`, `AGENTS.md`, `CLAUDE.md` (a symlink to `AGENTS.md`, so Claude Code picks it up too), and `docs/` into your repo. If your copy method doesn't preserve symlinks, just recreate it: `ln -s AGENTS.md CLAUDE.md`. This is simpler for a one-off copy but gives up the ability to pull upstream updates later.
