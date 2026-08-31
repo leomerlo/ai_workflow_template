@@ -7,7 +7,8 @@ A stack-agnostic agentic development workflow for Claude Code: skills that take 
 1. **`create-story`** — an interview (shaped by the `product-manager` agent) turns a rough idea into an unambiguous user story in `docs/stories/`.
 2. **`story-to-tickets`** — breaks the story into a short design doc plus independent, vertically-sliced GitHub issues.
 3. **`work-issue`** — plans from an issue, delegates implementation to the developer agents (test-first, red-green), has `qa-tester` close test gaps, then runs 3 `code-review` rounds and a final `security-review` gate.
-4. **`prepare-release`** — before shipping, diffs the release branches and produces a manual test checklist: a fixed smoke-test baseline plus one test block per feature the diff actually touched.
+4. **`implement-feat`** — for a parent/feature issue with sub-issues, orchestrates `work-issue` over every subtask in dependency order, merging each into a shared feature branch.
+5. **`prepare-release`** — before shipping, diffs the release branches and produces a manual test checklist: a fixed smoke-test baseline plus one test block per feature the diff actually touched.
 
 ## Other skills
 
