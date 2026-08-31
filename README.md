@@ -14,6 +14,17 @@ A stack-agnostic agentic development workflow for Claude Code: skills that take 
 
 - **`sync-project-info`** — re-scans an existing codebase (e.g. after dropping a working app into the template) and refreshes `AGENTS.md`'s Description/Technologies/Commands to match reality, instead of interviewing from scratch.
 
+## Design workflow
+
+Four design skills plug into `work-issue`'s existing Implement step for UI work — no separate phase, see [CONTEXT.md](CONTEXT.md) for the full rationale and [`docs/adr/`](docs/adr/) for the trade-offs:
+
+- **`impeccable`** — the backbone. Runs ambiently (a hook audits every UI edit and does a deep pass on stop) plus explicit `shape`/`audit`/`critique`/`polish` calls from the `ui-ux-developer` agent.
+- **`design-tokens`** — the token generator. Builds a layered token system (Primitive → Semantic → Responsive, CSS custom properties) from a primary color and a font, only when none exists yet; documenting or retrofitting an existing system stays `impeccable`'s job.
+- **`animate`** — the implementer. Builds one concrete animation at a time: tool, property, curve, duration/spring.
+- **`apple-design`** — the feel lens. Consulted (never invoked to write code) for gesture-driven motion, and usable standalone to critique an already-built interaction.
+
+`ui-ux-developer` (`.claude/agents/ui-ux-developer.md`) owns the operative routing rules between the four.
+
 ## Role agents (`.claude/agents/`)
 
 | Agent | Role |
@@ -31,7 +42,7 @@ The recommended way to bring this template into your repo is [`git subtree`](htt
 
 Either way, once the files are in place:
 
-1. On the first session, the `session-start-project-intro` hook interviews you about the project's purpose and stack (and, if `prepare-release` is present, its release conventions and smoke tests) and fills in `AGENTS.md` for you. If real code already exists, run `/sync-project-info` instead to derive that info from the repo rather than from memory.
+1. On the first session, the `session-start-project-intro` hook first walks you through this template (via the `explain` skill — what it is, the skill order, what each piece does; re-run any time with `/explain`), then interviews you about the project's purpose and stack (and, if `prepare-release` is present, its release conventions and smoke tests) and fills in `AGENTS.md` for you. If real code already exists, run `/sync-project-info` instead to derive that info from the repo rather than from memory.
 2. Add quality gates for your stack: pre-commit hooks (e.g. Husky + lint-staged) and a CI pipeline that runs typecheck, lint, and tests.
 3. Start with `/create-story`.
 

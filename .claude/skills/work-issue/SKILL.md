@@ -18,7 +18,7 @@ Take a GitHub issue from plan to reviewed implementation.
 
 - As soon as the plan is approved, mark the issue as in progress: `gh label create "in progress" --color FBCA04 --force && gh issue edit <n> --add-label "in progress"`.
 - Isolate the work in its own worktree: `EnterWorktree(name: "issue-<n>")`. Everything from here through the PR push (implementation, tests, all review rounds) happens inside it. Note the worktree path from the tool result — it's needed to re-enter later.
-- Delegate by area: `backend-developer` agent for server-side changes, `ui-ux-developer` agent for UI changes. Small cross-cutting glue can be done directly. Instruct the delegate to follow the TDD loop below rather than writing implementation first.
+- Delegate by area: `backend-developer` agent for server-side changes, `ui-ux-developer` agent for UI changes. Small cross-cutting glue can be done directly. Instruct the delegate to follow the TDD loop below rather than writing implementation first. If the issue touches UI, `ui-ux-developer` also follows the design workflow in its own agent doc — don't duplicate those rules here.
 - Break the issue's acceptance criteria into seams — the public interfaces (exported API, rendered output/interactions) where each criterion is observable. One acceptance criterion may need one or several seams.
 - Red → green loop, one slice at a time:
   1. Pick one acceptance criterion. Write one colocated test (`*.test.*`) against its seam, asserting behavior through the public interface — not internals, not mocks of internal collaborators. Expected values come from the spec/acceptance criteria, not recomputed the way the code will compute them.
