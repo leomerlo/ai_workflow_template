@@ -36,6 +36,7 @@ Run the typecheck and test commands before considering a change done. Wire them 
 - `create-story` — interview the user to produce a user story in `docs/stories/`
 - `story-to-tickets` — break a user story into a design doc and GitHub issues
 - `work-issue` — plan from an issue, implement, test, 3 code-review rounds + security review
+- `implement-feat` — work every subtask of a parent/feature issue in dependency order via `work-issue`, merging into a shared feature branch
 - `sync-project-info` — re-scan the codebase and refresh this file's Description/Technologies (e.g. after copying an existing app into the template)
 - `prepare-release` — produce a manual test checklist for a release: fixed smoke tests plus feature tests derived from the diff between the release branches above
 

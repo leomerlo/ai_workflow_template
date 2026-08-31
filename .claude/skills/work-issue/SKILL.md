@@ -55,3 +55,19 @@ gh issue edit <n> --remove-label "in progress"
 ```
 
 Then clean up the worktree, since its branch is now merged: `EnterWorktree(path: <worktree path>)` followed by `ExitWorktree(action: "remove", discard_changes: true)`.
+
+## Orchestrated mode (invoked from `implement-feat`)
+
+`implement-feat` breaks a parent issue into subtasks and delegates each one to a fresh subagent that follows this skill. When you (this skill) are invoked by such a subagent — the prompt will say so explicitly, naming the parent issue and the feature branch to use — adapt as follows:
+
+- **Base branch is fixed.** The worktree must branch from the feature branch `implement-feat` names, not the repo's default integration branch. `EnterWorktree(name: ...)` always branches from the default branch (or local HEAD, per `worktree.baseRef`), so it can't target an arbitrary feature branch — instead create the worktree manually and register it:
+  ```bash
+  git fetch origin
+  git worktree add .claude/worktrees/issue-<n> -b feat/issue-<n>-<slug> origin/feat/<feature-slug>
+  ```
+  then switch the session into it with `EnterWorktree(path: .claude/worktrees/issue-<n>)`.
+- **Never touch the parent issue.** No labels, no closing, no comments on it. `implement-feat` owns all of that.
+- **Replace "get user confirmation" gates with `AskUserQuestion`.** A subagent can't stop its turn and expect the next user message to resume it — it runs to completion and returns a report. So instead of just asking and waiting (step 1's plan confirmation, and the post-PR point below), call `AskUserQuestion` to get the human's decision inline, then continue based on the answer.
+- **Open the PR against the feature branch**, not the repo's default integration branch.
+- **Add an explicit validation gate after the PR is open and CI is green** (this skill's normal flow has none — it just reports and moves on). Before finishing your turn, call `AskUserQuestion` asking the human to validate the PR, and wait for their answer.
+- **Do not merge the PR yourself, do not remove the worktree, and do not run step 6** — `implement-feat` does the merge after the `AskUserQuestion` validation gate passes, then closes the subtask issue, removes its "in progress" label, and cleans up the worktree itself, since those only make sense once the PR is actually merged and your turn has already ended by then. Your job ends once the PR is open, CI is green (if applicable), and the validation question has been answered.
